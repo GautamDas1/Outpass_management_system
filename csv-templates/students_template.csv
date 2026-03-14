@@ -1,0 +1,13 @@
+name,email,register_no,department,section,year,semester,room_no,category
+Arun Kumar,arun.kumar@college.edu,21CS001,Computer Science,A,3,5,A-101,H
+Priya Sharma,priya.sharma@college.edu,21CS002,Computer Science,A,3,5,B-204,H
+Vikram Singh,vikram.singh@college.edu,21EC001,Electronics,B,3,5,C-305,H
+Divya Nair,divya.nair@college.edu,22ME001,Mechanical,A,2,3,D-102,H
+Rahul Verma,rahul.verma@college.edu,22CS001,Computer Science,B,2,3,A-205,H
+Sneha Patel,sneha.patel@college.edu,22CS002,Computer Science,B,2,3,B-108,H
+Karthik Raja,karthik.raja@college.edu,21ME001,Mechanical,A,3,5,C-401,H
+Anjali Menon,anjali.menon@college.edu,23CS001,Computer Science,A,1,1,D-301,H
+Suresh Babu,suresh.babu2@college.edu,20CS001,Computer Science,A,4,7,A-302,H
+Deepa Krishnan,deepa.krishnan@college.edu,20EC001,Electronics,A,4,7,B-407,H
+Ravi Shankar,ravi.shankar@college.edu,23ME001,Mechanical,B,1,1,,D
+Gautam Kumar Das,gautamkumardas.cse2024@citchennai.net,24CS0253,Computer Science,K,2,4,505,H
