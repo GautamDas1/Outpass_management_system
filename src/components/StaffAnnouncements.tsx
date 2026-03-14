@@ -28,7 +28,7 @@ export default function StaffAnnouncements() {
       setLoading(false);
     });
     getAllStudents().then(students => {
-      const depts = [...new Set(students.map(s => s.department))];
+      const depts = Array.from(new Set(students.map(s => s.department)));
       setDepartments(depts);
     });
     return unsub;
