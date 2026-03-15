@@ -75,6 +75,10 @@ export default function GatekeeperPage() {
         html5QrRef.current = null;
       }
 
+      // Clear the div to prevent duplicate camera views on restart
+      const readerEl = document.getElementById("qr-reader");
+      if (readerEl) readerEl.innerHTML = "";
+
       html5QrRef.current = new Html5Qrcode("qr-reader", { verbose: false });
 
       await html5QrRef.current.start(
@@ -127,6 +131,15 @@ export default function GatekeeperPage() {
     startedRef.current = false;
     if (html5QrRef.current) {
       html5QrRef.current.stop().catch(() => {});
+      html5QrRef.current = null;
+      setCameraReady(false);
+    }
+  }
+
+  async function stopCameraAsync() {
+    startedRef.current = false;
+    if (html5QrRef.current) {
+      try { await html5QrRef.current.stop(); } catch {}
       html5QrRef.current = null;
       setCameraReady(false);
     }
@@ -218,12 +231,19 @@ export default function GatekeeperPage() {
     setQrInput("");
   }
 
-  function reset() {
+  async function reset() {
     setResult(null);
     processingRef.current = false;
-    if (inputMode === "camera" && html5QrRef.current) {
-      html5QrRef.current.resume();
-    } else if (inputMode === "manual") {
+
+    if (inputMode === "camera") {
+      // Fully stop and restart camera — resume() is unreliable after pause
+      await stopCameraAsync();
+      startedRef.current = false;
+      // Small delay so DOM clears before restarting
+      setTimeout(() => {
+        if ((window as any).Html5Qrcode) startCamera();
+      }, 300);
+    } else {
       setTimeout(() => inputRef.current?.focus(), 100);
     }
   }
