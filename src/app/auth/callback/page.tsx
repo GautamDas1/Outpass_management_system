@@ -12,30 +12,27 @@ export default function AuthCallback() {
     handled.current = true;
 
     const sb = getSupabase();
+    let redirected = false;
 
-    // With detectSessionInUrl: true, supabase-js automatically reads the
-    // ?code= param from the URL and exchanges it using the PKCE verifier
-    // stored in localStorage. We just listen for the session to appear.
+    function doRedirect() {
+      if (redirected) return;
+      redirected = true;
+      router.replace("/");
+    }
+
+    // Listen for SIGNED_IN — fires when PKCE exchange completes
     const { data: { subscription } } = sb.auth.onAuthStateChange((event, session) => {
-      if (event === "SIGNED_IN" && session) {
+      if ((event === "SIGNED_IN" || event === "INITIAL_SESSION") && session) {
         subscription.unsubscribe();
-        router.replace("/");
+        doRedirect();
       }
     });
 
-    // Also check if session already exists (e.g. page reloaded)
-    sb.auth.getSession().then(({ data: { session } }) => {
-      if (session) {
-        subscription.unsubscribe();
-        router.replace("/");
-      }
-    });
-
-    // Timeout fallback — if nothing happens in 8 seconds, go home anyway
+    // Fallback timeout
     const timeout = setTimeout(() => {
       subscription.unsubscribe();
-      router.replace("/");
-    }, 8000);
+      doRedirect();
+    }, 6000);
 
     return () => {
       clearTimeout(timeout);
@@ -46,10 +43,8 @@ export default function AuthCallback() {
   return (
     <div className="min-h-screen flex items-center justify-center">
       <div className="flex flex-col items-center gap-4">
-        <div
-          className="w-10 h-10 border-2 rounded-full animate-spin"
-          style={{ borderColor: "var(--brand)", borderTopColor: "transparent" }}
-        />
+        <div className="w-10 h-10 border-2 rounded-full animate-spin"
+          style={{ borderColor: "var(--brand)", borderTopColor: "transparent" }} />
         <p className="text-slate-400 text-sm font-display">Completing sign in...</p>
       </div>
     </div>

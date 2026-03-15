@@ -1,13 +1,17 @@
 import QRCode from "qrcode";
 
 export async function generateQRCode(outpassId: string): Promise<string> {
-  // Store just the ID as plain text — simpler QR = much easier to scan
-  // Lower error correction = less dense QR pattern = faster camera detection
-  const qrDataURL = await QRCode.toDataURL(outpassId, {
-    errorCorrectionLevel: "L",  // L=low density, easiest to scan
-    width: 300,
+  // We include a prefix to make the QR unique to our app
+  const payload = `outpass:${outpassId}`;
+  
+  const qrDataURL = await QRCode.toDataURL(payload, {
+    errorCorrectionLevel: "M", // 'M' is a good balance for phone screens
+    width: 400,
     margin: 2,
-    color: { dark: "#000000", light: "#ffffff" },
+    color: { 
+      dark: "#ffffff", // White modules (for dark mode/inverted)
+      light: "#000000" // Black background
+    },
   });
   return qrDataURL;
 }
@@ -15,19 +19,24 @@ export async function generateQRCode(outpassId: string): Promise<string> {
 export function parseQRPayload(raw: string): { id: string } | null {
   if (!raw || typeof raw !== "string") return null;
   const trimmed = raw.trim();
-  if (!trimmed) return null;
 
-  // Try JSON first (for backward compatibility with old QR codes)
+  // 1. Handle "outpass:ID" format (Your current QR code format)
+  if (trimmed.startsWith("outpass:")) {
+    const id = trimmed.split(":")[1];
+    return id ? { id } : null;
+  }
+
+  // 2. Handle JSON format (Backward compatibility)
   try {
     const parsed = JSON.parse(trimmed);
     if (parsed?.id) return { id: parsed.id };
   } catch {
-    // Not JSON — treat entire string as the outpass ID directly
+    // Not JSON
   }
 
-  // Plain UUID format (new QR codes)
-  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-  if (uuidRegex.test(trimmed)) {
+  // 3. Handle Plain ID (No prefix, not JSON)
+  // If it's a long string of numbers or a UUID, accept it
+  if (trimmed.length > 5) {
     return { id: trimmed };
   }
 
